@@ -2,10 +2,12 @@
 #include "ComplexMatrix.h"
 #include "ComplexVector.h"
 #include "MyAssoc.h"
+#include <array>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <math.h>
+#include <vector>
 
 /* Задача 1.1.
 Створити тип даних - клас VectorInt (вектор цілих чисел), який має вказівник на
@@ -71,7 +73,7 @@ o <=(менше рівне) для двох векторів.
 межі масиву. Передбачити можливість підрахунку числа об'єктів даного типу.
 Перевірити роботу цього класу.  */
 
-enum codeError { None, BAD_INIT, BAD_DIV };
+enum codeError { None, BAD_INIT, Out_Of_Range, BAD_VALUE };
 
 class VectorInt {
   int *point;
@@ -187,7 +189,7 @@ public:
 
   VectorInt &operator+=(const VectorInt &v) {
     if (size != v.size) {
-      codeError = 1;
+      codeError = Out_Of_Range;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -198,7 +200,7 @@ public:
 
   VectorInt &operator-=(const VectorInt &v) {
     if (size != v.size) {
-      codeError = 1;
+  codeError = Out_Of_Range;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -216,7 +218,7 @@ public:
 
   VectorInt &operator/=(int value) {
     if (value == 0) {
-      codeError = 2;
+      codeError = BAD_VALUE;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -227,7 +229,7 @@ public:
 
   VectorInt &operator%=(int value) {
     if (value == 0) {
-      codeError = 2;
+      codeError = BAD_VALUE;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -238,7 +240,7 @@ public:
 
   VectorInt &operator|=(const VectorInt &v) {
     if (size != v.size) {
-      codeError = 1;
+      codeError = Out_Of_Range;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -249,7 +251,7 @@ public:
 
   VectorInt &operator^=(const VectorInt &v) {
     if (size != v.size) {
-      codeError = 1;
+      codeError = Out_Of_Range;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -260,7 +262,7 @@ public:
 
   VectorInt &operator&=(const VectorInt &v) {
     if (size != v.size) {
-      codeError = 1;
+      codeError = Out_Of_Range;
       return *this;
     }
     for (int i = 0; i < size; i++) {
@@ -272,7 +274,7 @@ public:
   VectorInt operator+(const VectorInt &v) {
     if (size != v.size) {
       VectorInt result;
-      result.codeError = 1;
+      result.codeError = Out_Of_Range;
       return result;
     }
     VectorInt result(size);
@@ -284,7 +286,7 @@ public:
   VectorInt operator-(const VectorInt &v) {
     if (size != v.size) {
       VectorInt result;
-      result.codeError = 1;
+      result.codeError = Out_Of_Range;
       return result;
     }
     VectorInt result(size);
@@ -303,7 +305,7 @@ public:
   VectorInt operator/(int n) {
     if (n == 0) {
       VectorInt result;
-      result.codeError = 2;
+      result.codeError = BAD_VALUE;
       return result;
     }
     VectorInt result(size);
@@ -315,7 +317,7 @@ public:
   VectorInt operator%(int n) const {
     if (n == 0) {
       VectorInt result;
-      result.codeError = 2;
+      result.codeError = BAD_VALUE;
       return result;
     }
     VectorInt result(size);
@@ -328,7 +330,7 @@ public:
   VectorInt operator|(const VectorInt &v) {
     if (size != v.size) {
       VectorInt result;
-      result.codeError = 1;
+      result.codeError = Out_Of_Range;
       return result;
     }
     VectorInt result(size);
@@ -341,7 +343,7 @@ public:
   VectorInt operator^(const VectorInt &v) {
     if (size != v.size) {
       VectorInt result;
-      result.codeError = 1;
+      result.codeError = Out_Of_Range;
       return result;
     }
     VectorInt result(size);
@@ -354,7 +356,7 @@ public:
   VectorInt operator&(const VectorInt &v) {
     if (size != v.size) {
       VectorInt result;
-      result.codeError = 1;
+      result.codeError = Out_Of_Range;
       return result;
     }
     VectorInt result(size);
@@ -398,6 +400,15 @@ public:
 
     return point[index];
   }
+
+  void *operator new(size_t size_new) {
+    void *v = malloc(size_new);
+    return v;
+  }
+
+  void operator delete(void *v) { free(v); }
+
+  void operator()() { cout << "Function work"; }
 
   bool operator>(const VectorInt &v) {
     double length1 = 0, length2 = 0;
@@ -489,83 +500,112 @@ istream &operator>>(istream &input, VectorInt &v) {
 
 ostream &operator<<(ostream &output, const VectorInt &v) {
   for (int i = 0; i < v.size; i++) {
-    output << v.point[i] << '\t';
+    output << v.point[i] << ' ';
   }
   output << endl;
   return output;
 }
 
-int mainExample1() {
-  VectorInt v1(3, 3);
-  VectorInt v2(3, 5);
-  VectorInt v3(3, 3);
-  v3++;
-  v3 = v3 + v1;
+int exersice1() {
+  int length, value;
+  cout << "Enter the length and value of vector:";
+  cin >> length;
+  cin >> value;
+  VectorInt v1(length, value);
+  cout << "Entered vector" << endl;
+  cout << v1;
+  cout << "vector++" << endl;
   v1++;
-  v3 = -v3;
-  v3.print();
-  v1.print();
-  cout << (v3 > v3);
-  cout << v3[2];
+  cout << v1;
+  cout << "vector--" << endl;
+  v1--;
+  cout << v1;
+  cout << "Vector2, legth 4 value 2" << endl;
+  VectorInt v2(4, 2);
+  cout << v2;
+  cout << "Vector1 + Vector2" << endl;
+  cout << (v1 + v2) << endl;
+  cout << "Vector1 - Vector2" << endl;
+  cout << (v1 - v2) << endl;
+  cout << "Entered vector < Vector2" << endl;
+  cout << (v1 < v2) << endl;
+  cout << "Entered vector > Vector2" << endl;
+  cout << (v1 > v2) << endl;
+  cout << "Entered vector <= Vector2" << endl;
+  cout << (v1 <= v2) << endl;
+  cout << "Entered vector >= Vector2" << endl;
+  cout << (v1 >= v2) << endl;
   return 0;
 };
 
-/// <summary>
-/// Задано : A,B,C,D,F  -  Матриці комплесних чисел
-///          a,b,c  -  Вектори комплесних чисел
-///          _a,_b,_c - комплексні числа.
-/// Обчислити вираз : F = A+B*_a-B*_c+C/_b;
-///                   c = F*a + D*b
-/// </summary>
-/// <returns></returns>
+/*
+Побудувати асоційований клас збереження двох сутностей. В завданні створити
+клас, який представляє собою асоціативний масив між двома сутностями. Написати
+функцію створення набору асоціативних сутностей. Перевантажити операцію
+індексації [] – функцію, яка звертається до об’єкта класу, за однією сутністю,
+якщо індекс, повертає асоціативну сутність, альтернативні звернення через
+перевантаження операції виклику функції(); перевантажити дружні операції
+введення та виведення.
+Задача 2.1. Цілих чисел від 1 до 100 та цілі прописом. Наприклад, 1 та
+один, 10 та десять.
+*/
 
-int mainExample2() {
-  ComplexMatrix A(5), B(5), C(5), D(5), F(5);
-  ComplexVector a(5), b(5), c(5);
-  ComplexDouble _a(3.2, 5), _b(1, 2), _c = RandComplexDouble();
+class Record {
+public:
+  int key;
+  string value;
+  Record() {};
+  Record(int k, string v) {
+    key = k;
+    value = v;
+  }
+};
 
-  A.RandComplexMatrix();
-  B.RandComplexMatrix();
-  C.RandComplexMatrix();
-  D.RandComplexMatrix();
-  a.RandComplexVector();
-  b.RandComplexVector();
-  c.RandComplexVector();
+class Numbers {
+public:
+  vector<Record> records;
+  Numbers(vector<Record> values) { records = values; }
 
-  cout << endl;
-  cout << "Matrix A \n" << A;
-  cout << "Matrix B \n" << B;
-  cout << "Matrix C \n" << C;
-  cout << "Matrix D \n" << D;
-  cout << endl;
-  cout << "Vector a \n" << a;
-  cout << "Vector b \n" << b;
-  cout << "Vector c \n" << c;
+  string operator[](int key) {
+    for (auto r : records) {
+      if (r.key == key) {
+        return r.value;
+      }
+    }
+    return "Not found";
+  };
+  void operator()() { cout << "Function work"; };
 
-  /// Обчислити вираз : F = A+B*_a-B*_c+C/_b;
-  ///                   c = F*a + D*b
-  F = A + B * _a - B * _c + C / _b;
-  cout << "Matrix F \n" << F;
-  c = F * a + D * b;
-  cout << "Vector c \n" << c;
+  friend istream &operator>>(istream &input, Numbers &number);
+  friend ostream &operator<<(ostream &output, const Numbers &number);
+};
 
-  return 0;
+istream &operator>>(istream &input, Numbers &n) {
+  int key;
+  string value;
+  input >> key >> value;
+  n.records.push_back(Record(key, value));
+  return input;
 }
-int mainExample3() {
-  cout << " End begin \n";
-  uint Flight[5] = {12, 32, 23, 43, 43};
-  MyTime MTime[5] = {{9, 10}, {10, 30}, {10, 30}, {10, 30}, {15, 35}};
-  MyAssoc dbase(5, Flight, MTime);
-  dbase.TableFlight();
-  MyTime r = {10, 30}, ro;
-  uint fli = 32;
-  ro = dbase[fli];
-  cout << " Test : MyTime operator[](uint&s  )  "
-       << "Flight " << fli << " time   " << ro << endl;
-  cout << " Test : uint	operator[](MyTime&s)  "
-       << " time  " << r << " light  " << dbase[r] << endl;
-  cout << " Flight with time :   9   to  11 \n";
-  dbase(9, 11);
-  cout << " End test \n";
-  return 4;
+
+ostream &operator<<(ostream &output, const Numbers &n) {
+  for (auto r : n.records) {
+    output << r.key << " " << r.value << '\t';
+  }
+  output << endl;
+  return output;
 }
+
+void exersice2() {
+  int find_element;
+  ifstream inputFile;
+  inputFile.open("numbers.txt");
+  vector<Record> records;
+  Numbers numbers(records);
+  for (int i = 0; i< 100; i++) {
+    inputFile >> numbers;
+  }
+  cout << "Enter the number we need found:";
+  cin >> find_element;
+  cout << numbers[find_element] << endl;
+};
